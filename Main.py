@@ -1,8 +1,10 @@
-from flask import Flask, g, url_for, render_template, request, redirect
+from flask import Flask, g, url_for, render_template, request, redirect, session
 from pathlib import Path
 import sqlite3
 
 app = Flask(__name__)
+
+app.secret_key = 'S\xcb\t,E\xf2\xd7\x12\x0c\xbfk\x19\xb7\x06\xc1\x9d\xac\xd2z#5h\xcdH'
 
 DATABASE = 'database.db'
 
@@ -23,19 +25,49 @@ def close_connection(exception):
 
 
 def get_login(usn, pwd):
-    return True
+    cur = get_db().cursor()
+    cur.execute(f"SELECT id, username, password FROM users WHERE username LIKE ? AND password LIKE ?", (usn, pwd))
+    user = cur.fetchone()
+    if user:
+        return user
+    else:
+        return None
 
 
 def get_all_tasks():
     cur = get_db().cursor()
-    tasks = cur.execute("")
-    res = tasks.fetchall()
+    cur.execute("SELECT id, title, content, created_by, date_task ,created FROM tasks")
+    res = cur.fetchall()
     return res
 
 
-def add_task(name, content, priority):
+def get_task_by_day(date):
     cur = get_db().cursor()
-    tasks = cur.execute("INSERT INTO ")
+    cur.execute("SELECT id, title, content, created_by, date_task ,created FROM tasks where date_task like ?", date)
+    res = cur.fetchall()
+    return res
+
+
+def get_task_by_day_and_user(user_id, date):
+    cur = get_db().cursor()
+    cur.execute(
+        "SELECT id, title, content, created_by, date_task ,created FROM tasks where date_task like ? and created_by = ?",
+        (date, user_id))
+    res = cur.fetchall()
+    return res
+
+
+def get_âll_tasks_by_user(id_user):
+    cur = get_db().cursor()
+    cur.execute("SELECT id, title, content, created_by, date_task ,created FROM tasks")
+    res = cur.fetchall()
+    return res
+
+
+def add_task(name, content, date_task, ):
+    cur = get_db().cursor()
+    cur.execute("")
+    res = cur.fetchone()
     return True
 
 
@@ -55,7 +87,19 @@ def login():
     :return: la page de login
     """
     if request.method == 'POST':
-        return render_template('login.html')
+        print("Méthode POST login")
+        username = request.form['username']
+        password = request.form['password']
+        user = get_login(username, password)
+        if user:
+            session['user_id'] = user['id']
+            session['username'] = user['username']
+            print(session['user_id'], session['username'])
+            return redirect(url_for("index"))
+        else:
+            error_message = "Nom d'utilisateur ou mot de passe incorrect."
+            return render_template('login.html', error_message=error_message)
+
     else:
         return render_template('login.html')
 
@@ -63,7 +107,7 @@ def login():
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        return render_template('index.html')
+        return render_template('update.html')
 
     else:
         tasks = get_all_tasks()
@@ -77,6 +121,12 @@ def update(id):
         return redirect(url_for('index'))
     else:
         return render_template('update.html')
+
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
 
 
 if not Path(DATABASE).exists():
