@@ -1,10 +1,10 @@
 from flask import Flask, g, url_for, render_template, request, redirect
-
+from pathlib import Path
 import sqlite3
 
 app = Flask(__name__)
 
-DATABASE = '/path/to/database.db'
+DATABASE = 'database.db'
 
 
 def get_db():
@@ -22,16 +22,20 @@ def close_connection(exception):
         db.close()
 
 
+def get_login(usn, pwd):
+    return True
+
+
 def get_all_tasks():
-    conn = get_db()
-    tasks = conn.execute("")
-    close_connection()
-    return tasks
+    cur = get_db().cursor()
+    tasks = cur.execute("")
+    res = tasks.fetchall()
+    return res
 
 
 def add_task(name, content, priority):
-    conn = get_db()
-
+    cur = get_db().cursor()
+    tasks = cur.execute("INSERT INTO ")
     return True
 
 
@@ -75,10 +79,13 @@ def update(id):
         return render_template('update.html')
 
 
+if not Path(DATABASE).exists():
+    with app.app_context():
+        db = get_db()
+        with app.open_resource('schema.sql', mode='r') as f:
+            db.cursor().executescript(f.read())
+        db.commit()
+
 with app.test_request_context():
     print(url_for('index'))
     print(url_for('login'))
-
-
-def valid_login(usn, pwd):
-    return True
