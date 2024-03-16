@@ -36,39 +36,37 @@ def get_login(usn, pwd):
 
 def get_all_tasks():
     cur = get_db().cursor()
-    cur.execute("SELECT id, title, content, created_by, date_task ,created FROM tasks")
+    cur.execute(
+        "SELECT tasks.id, tasks.title, tasks.content, users.username, tasks.date_task ,tasks.created FROM tasks INNER JOIN users ON tasks.created_by = users.id")
     res = cur.fetchall()
     return res
 
 
-def get_task_by_day(date):
+def get_all_users():
     cur = get_db().cursor()
-    cur.execute("SELECT id, title, content, created_by, date_task ,created FROM tasks where date_task like ?", date)
+    cur.execute("SELECT id,username FROM users where active = True")
     res = cur.fetchall()
     return res
 
 
-def get_task_by_day_and_user(user_id, date):
+def add_user():
+    return True
+
+
+def get_tasks_by_user(user_id):
     cur = get_db().cursor()
     cur.execute(
-        "SELECT id, title, content, created_by, date_task ,created FROM tasks where date_task like ? and created_by = ?",
-        (date, user_id))
+        "SELECT tasks.id, tasks.title, tasks.content, users.username, tasks.date_task ,tasks.created FROM tasks INNER JOIN users ON tasks.created_by = users.id WHERE created_by = ?",
+        (user_id,))
     res = cur.fetchall()
     return res
 
 
-def get_âll_tasks_by_user(id_user):
+def add_task(title, content, date_task, created_by ):
     cur = get_db().cursor()
-    cur.execute("SELECT id, title, content, created_by, date_task ,created FROM tasks")
-    res = cur.fetchall()
-    return res
-
-
-def add_task(name, content, date_task, ):
-    cur = get_db().cursor()
-    cur.execute("")
+    cur.execute("INSERT INTO tasks (title, content, date_task, created_by) VALUES (?,?,?, ?)",(title,content,date_task,created_by))
     res = cur.fetchone()
-    return True
+    return res
 
 
 def delete_task():
@@ -99,19 +97,27 @@ def login():
         else:
             error_message = "Nom d'utilisateur ou mot de passe incorrect."
             return render_template('login.html', error_message=error_message)
-
     else:
         return render_template('login.html')
 
 
 @app.route('/index', methods=['GET', 'POST'])
 def index():
+    user_id = request.args.get('user_id')
+    all_tasks = get_all_tasks()
+    all_users = get_all_users()
+
     if request.method == 'POST':
         return render_template('update.html')
 
     else:
-        tasks = get_all_tasks()
-        return render_template('index.html', tasks=tasks)
+        if user_id:
+            user_id = int(user_id)
+            user_tasks = get_tasks_by_user(user_id)
+            return render_template('index.html', all_tasks=user_tasks, all_users=all_users,
+                                   user_id=user_id)
+        else:
+            return render_template('index.html', all_tasks=all_tasks, all_users=all_users)
 
 
 @app.route('/update/', methods=['GET', 'POST'])
@@ -135,7 +141,3 @@ if not Path(DATABASE).exists():
         with app.open_resource('schema.sql', mode='r') as f:
             db.cursor().executescript(f.read())
         db.commit()
-
-with app.test_request_context():
-    print(url_for('index'))
-    print(url_for('login'))

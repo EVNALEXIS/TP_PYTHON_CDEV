@@ -1,37 +1,203 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="FR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon site web</title>
+    <title>Ma liste de tâche</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Autres balises dans le head -->
+    <style>
+        /* Votre CSS ici */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .navbar {
+            background-color: #f4f4f4;
+            padding: 10px 20px;
+        }
+
+        .navbar-right {
+            float: right;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-right a {
+            margin-left: 10px;
+            color: #333;
+            text-decoration: none;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        main {
+            margin: 20px auto; /* Centrer la section principale */
+            width: 80%; /* Largeur de la section principale */
+        }
+
+        /* Styles pour les utilisateurs */
+        #users {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        .user {
+            margin-bottom: 10px;
+            margin-right: 10px;
+        }
+
+        /* Styles pour les tâches */
+        #tasks {
+            flex-wrap: wrap;
+        }
+
+        .task {
+            border: 1px solid #ccc; /* Bordure des tâches */
+            margin: 10px;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .task:hover {
+            background-color: #f9f9f9; /* Couleur de fond des tâches au survol */
+        }
+
+        /* Styles pour le contenu de la tâche */
+        #task-content {
+            display: none; /* Masquer le contenu de la tâche par défaut */
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        /* Style général pour le formulaire */
+        form {
+            width: 300px; /* Largeur du formulaire */
+            margin: 0 auto; /* Centrer le formulaire horizontalement */
+        }
+
+        /* Style pour les étiquettes des champs */
+        label {
+            display: block; /* Afficher les étiquettes sur une ligne séparée */
+            margin-bottom: 10px; /* Espacement entre les étiquettes */
+        }
+
+        /* Style pour les champs de saisie */
+        input[type="text"],
+        input[type="date"] {
+            width: 100%; /* Remplir toute la largeur du formulaire */
+            padding: 8px; /* Espace interne */
+            margin-bottom: 15px; /* Espacement entre les champs */
+            border: 1px solid #ccc; /* Bordure autour des champs */
+            border-radius: 4px; /* Coins arrondis */
+        }
+
+        /* Style pour le bouton de soumission */
+        input[type="submit"] {
+            background-color: #007bff; /* Couleur de fond du bouton */
+            color: #fff; /* Couleur du texte */
+            border: none; /* Pas de bordure */
+            padding: 10px 20px; /* Espace interne */
+            border-radius: 4px; /* Coins arrondis */
+            cursor: pointer; /* Curseur au survol */
+        }
+
+        /* Style pour le bouton de soumission au survol */
+        input[type="submit"]:hover {
+            background-color: #0056b3; /* Couleur de fond au survol */
+        }
+
+
+    </style>
 </head>
 <body>
     <header>
-        <h1>Bienvenue sur mon site web</h1>
+        <h1>Bienvenue sur Task List</h1>
     </header>
+    <div class="navbar">
+    <div class="navbar-right">
+    <a style="margin-right: 10px;"><i class="fas fa-home"></i>Bonjour, {{ session['username']}}</a>
+    <form action="{{ url_for('logout') }}" method="post">
+        <button type="submit" ><i class="fas fa-sign-out-alt"></i></button>
+    </form>
+</div>
+</div>
 
-    <nav>
-        <ul>
-            <li><a href="#">Accueil</a></li>
-            <li><a href="#">À propos</a></li>
-            <li><a href="#">Contact</a></li>
-        </ul>
-    </nav>
+     <main>
+         <div id="users" >
+            <div class="user"><a href="{{ url_for('index') }}">all</a></div>
+             {% if all_users %}
+                {% for user in all_users %}
+                    <div class="user" data-user-id="{{ user.id }}">
+                        <a href="{{ url_for('index', user_id=user.id) }}">{{ user.username }}</a>
+                    </div>
+                {% endfor %}
+             {% endif %}
+         </div>
 
-    <main>
-        <section>
-            <h2>Section 1</h2>
-            <p>Ceci est le contenu de la section 1.</p>
-        </section>
+        <div id="tasks">
+            <form action="{{ url_for('index') }}", method="POST">
+                <input type="text" name="name" id="tasktitle" placeholder="Titre de ma tâche">
+                <input type="text" name="name" id="taskcontent" placeholder="Contenu de la tâche">
+                <input type="date" name="name" id="taskdate" >
+                <input type="submit" value="Ajouter">
 
-        <section>
-            <h2>Section 2</h2>
-            <p>Ceci est le contenu de la section 2.</p>
-        </section>
+            </form>
+            {% if all_tasks %}
+                {% for task in all_tasks %}
+                    <div class="task" data-content="{{ task.content }}, créée le {{ task.date_task }} par {{ task.username }}">{{ task.title }} <a href="#"><i class="fas fa-pen"></i></a> <a href="#"><i class="fas fa-trash"></i></a></div>
+                {% endfor %}
+            {% else %}
+                <p style="font-size: 16px; text-align: center;">Vide</p>
+            {% endif %}
+        </div>
+        <div id="task-content" class="task-content" ></div>
+
     </main>
+     <script>
+    document.querySelectorAll('.user').forEach(user => {
+        user.addEventListener('click', function() {
+            const userId = this.dataset.userId;
+            if (userId) {
+                window.location.href = `/index?user_id=${userId}`;
+            }
+        });
+    });
+
+        document.querySelectorAll('.task').forEach(task => {
+            task.addEventListener('click', function() {
+                const dataContent = this.dataset.content;
+
+                // Afficher le contenu dans la zone dédiée
+                const taskContentDiv = document.getElementById('task-content');
+                taskContentDiv.innerHTML = `<p>${dataContent}</p>`;
+                taskContentDiv.style.display = 'block'
+            });
+        });
+    </script>
 
     <footer>
-        <p>&copy; 2024 Mon site web. Tous droits réservés.</p>
+        <p>&copy; 2024 Mon site web. TP Python Alexis EVENO</p>
     </footer>
 </body>
 </html>
