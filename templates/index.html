@@ -91,9 +91,10 @@
             border: 1px solid #ccc;
         }
         /* Style général pour le formulaire */
-        form {
+        .form_task {
             width: 300px; /* Largeur du formulaire */
             margin: 0 auto; /* Centrer le formulaire horizontalement */
+            display: none;
         }
 
         /* Style pour les étiquettes des champs */
@@ -156,10 +157,13 @@
          </div>
 
         <div id="tasks">
-            <form action="{{ url_for('index') }}", method="POST">
-                <input type="text" name="name" id="tasktitle" placeholder="Titre de ma tâche">
-                <input type="text" name="name" id="taskcontent" placeholder="Contenu de la tâche">
-                <input type="date" name="name" id="taskdate" >
+
+            <button id="show_form" type="button"><i class="fas fa-plus"></i> Ajouter une tâche</button>
+
+            <form class="form_task" id="form_task"action="{{ url_for('index') }}", method="POST">
+                <input type="text" name="title" id="tasktitle" placeholder="Titre de ma tâche">
+                <input type="text" name="content" id="taskcontent" placeholder="Contenu de la tâche">
+                <input type="date" name="date" id="taskdate" >
                 <input type="submit" value="Ajouter">
 
             </form>
@@ -175,14 +179,29 @@
 
     </main>
      <script>
-    document.querySelectorAll('.user').forEach(user => {
-        user.addEventListener('click', function() {
-            const userId = this.dataset.userId;
-            if (userId) {
-                window.location.href = `/index?user_id=${userId}`;
+        document.querySelectorAll('.user').forEach(user => {
+            user.addEventListener('click', function() {
+                const userId = this.dataset.userId;
+                if (userId) {
+                    window.location.href = `/index?user_id=${userId}`;
+                }
+            });
+        });
+
+        const showFormButton = document.getElementById('show_form');
+        const taskForm = document.getElementById('form_task');
+
+        // Ajouter un écouteur d'événement au clic sur le bouton
+        showFormButton.addEventListener('click', function() {
+            // Vérifier si le formulaire est caché
+            if (taskForm.style.display === 'none') {
+                // Afficher le formulaire
+                taskForm.style.display = 'block';
+            } else {
+                // Cacher le formulaire
+                taskForm.style.display = 'none';
             }
         });
-    });
 
         document.querySelectorAll('.task').forEach(task => {
             task.addEventListener('click', function() {

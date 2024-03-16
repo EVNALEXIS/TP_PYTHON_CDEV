@@ -62,11 +62,11 @@ def get_tasks_by_user(user_id):
     return res
 
 
-def add_task(title, content, date_task, created_by ):
+def add_task(title, content, date_task, created_by):
     cur = get_db().cursor()
-    cur.execute("INSERT INTO tasks (title, content, date_task, created_by) VALUES (?,?,?, ?)",(title,content,date_task,created_by))
-    res = cur.fetchone()
-    return res
+    cur.execute("INSERT INTO tasks (title, content, date_task, created_by) VALUES (?,?,?, ?)",
+                (title, content, date_task, created_by))
+    get_db().commit()
 
 
 def delete_task():
@@ -108,8 +108,11 @@ def index():
     all_users = get_all_users()
 
     if request.method == 'POST':
-        return render_template('update.html')
-
+        title = request.form.get('title')
+        content = request.form.get('content')
+        date_task = request.form.get('date')
+        add_task(title=title, content=content, date_task=date_task, created_by=session['user_id'])
+        return redirect(url_for('index'))
     else:
         if user_id:
             user_id = int(user_id)
