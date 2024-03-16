@@ -37,7 +37,8 @@ def get_login(usn, pwd):
 def get_all_tasks():
     cur = get_db().cursor()
     cur.execute(
-        "SELECT tasks.id, tasks.title, tasks.content, users.username, tasks.date_task ,tasks.created FROM tasks INNER JOIN users ON tasks.created_by = users.id")
+        "SELECT tasks.id, tasks.title, tasks.content, users.username, tasks.date_task ,tasks.created FROM tasks INNER "
+        "JOIN users ON tasks.created_by = users.id")
     res = cur.fetchall()
     return res
 
@@ -56,14 +57,18 @@ def get_user_by_usn(usn):
     return res
 
 
-def add_user():
-    return True
+def add_user(user, password):
+    cur = get_db().cursor()
+    cur.execute("INSERT INTO users (username, password) VALUES (?,?)",
+                (user, password))
+    get_db().commit()
 
 
 def get_tasks_by_user(user_id):
     cur = get_db().cursor()
     cur.execute(
-        "SELECT tasks.id, tasks.title, tasks.content, users.username, tasks.date_task ,tasks.created FROM tasks INNER JOIN users ON tasks.created_by = users.id WHERE created_by = ?",
+        "SELECT tasks.id, tasks.title, tasks.content, users.username, tasks.date_task ,tasks.created FROM tasks INNER "
+        "JOIN users ON tasks.created_by = users.id WHERE created_by = ?",
         (user_id,))
     res = cur.fetchall()
     return res
@@ -72,7 +77,8 @@ def get_tasks_by_user(user_id):
 def get_task_by_id(task_id):
     cur = get_db().cursor()
     cur.execute(
-        "SELECT tasks.id, tasks.title, tasks.content, users.username, tasks.date_task ,tasks.created FROM tasks INNER JOIN users ON tasks.created_by = users.id WHERE tasks.id = ?",
+        "SELECT tasks.id, tasks.title, tasks.content, users.username, tasks.date_task ,tasks.created FROM tasks INNER "
+        "JOIN users ON tasks.created_by = users.id WHERE tasks.id = ?",
         (task_id,))
     res = cur.fetchone()
     return res
@@ -123,8 +129,45 @@ def login():
         return render_template('login.html')
 
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    """
+    Gère l'inscription
+    :return: Si OK, la page de login sinon un message d'erreur
+    """
+    if request.method == 'POST':
+        username = request.form.get('username')
+        pwd = request.form.get('password')
+        confirmpwd = request.form.get('confirm_password')
+
+        if pwd == confirmpwd:
+            add_user(username, pwd)
+            return redirect(url_for("login"))
+        else:
+            error_message = "Veuiller confirmer votre mot de passe"
+            return render_template('register.html', error_message=error_message)
+
+
+    else:
+        return render_template('register.html')
+
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    """
+    Permet de se déconnecter, on détruit la variable de session que l'on initialise à la connection
+    :return: la page de connexion
+    """
+    session.clear()
+    return redirect(url_for("login"))
+
+
 @app.route('/index', methods=['GET', 'POST'])
 def index():
+    """
+    Affiche la page d'accueil et l'ajout de tâche
+    :return: la page d'accueil
+    """
     user_id = request.args.get('user_id')
     all_tasks = get_all_tasks()
     all_users = get_all_users()
@@ -147,6 +190,11 @@ def index():
 
 @app.route('/update/<int:task_id>', methods=['GET', 'POST'])
 def update(task_id):
+    """
+
+    :param task_id: identifiant entier unique d'une tâche
+    :return: La page de modifcation ou La page d'accueil après modification
+    """
     if request.method == 'POST':
         title = request.form.get('title')
         content = request.form.get('content')
@@ -161,16 +209,18 @@ def update(task_id):
 
 @app.route('/delete/<int:task_id>')
 def delete(task_id):
+    """
+
+    :param task_id: identifiant entier unique d'une tâche
+    :return: la page d'accueil après la supression de tâche
+    """
     delete_task(task_id)
     return redirect(url_for('index'))
 
 
-@app.route('/logout', methods=['POST'])
-def logout():
-    session.clear()
-    return redirect(url_for("login"))
-
-
+"""
+Connexion à la db au lancement de l'app et Initialisation de la db si première fois
+"""
 if not Path(DATABASE).exists():
     with app.app_context():
         db = get_db()
