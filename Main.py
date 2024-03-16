@@ -92,8 +92,11 @@ def update_task(title, content, date_task, created_by, id_task):
     get_db().commit()
 
 
-def delete_task():
-    return True
+def delete_task(task_id):
+    cur = get_db().cursor()
+    cur.execute("DELETE FROM tasks WHERE tasks.id=?",
+                (task_id,))
+    get_db().commit()
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -156,8 +159,10 @@ def update(task_id):
         return render_template('update.html', task=task)
 
 
+@app.route('/delete/<int:task_id>')
 def delete(task_id):
-    return True;
+    delete_task(task_id)
+    return redirect(url_for('index'))
 
 
 @app.route('/logout', methods=['POST'])

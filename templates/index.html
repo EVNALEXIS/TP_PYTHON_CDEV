@@ -52,7 +52,11 @@
             </form>
             {% if all_tasks %}
                 {% for task in all_tasks %}
-                    <div class="task" data-content="{{ task.content }}, a réalisé le {{ task.date_task }} par {{ task.username }}">{{ task.title }} <a href="{{ url_for('update', task_id=task.id) }}" class="btn_update_task"><i class="fas fa-pen"></i></a> <a href="#"><i class="fas fa-trash"></i></a></div>
+                    <div class="task" data-content="{{ task.content }}, a réalisé le {{ task.date_task }} par {{ task.username }}">{{ task.title }}
+                        <a href="{{ url_for('update', task_id=task.id) }}" class="btn_update_task"><i class="fas fa-pen"></i></a>
+                        <a href="{{ url_for('delete', task_id=task.id) }}" class="btn_delete_task" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?');">
+    <i class="fas fa-trash"></i>
+</a></div>
                 {% endfor %}
             {% else %}
                 <p style="font-size: 16px; text-align: center;">Vide</p>

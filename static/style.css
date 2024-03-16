@@ -82,6 +82,9 @@
             padding: 10px;
             border: 1px solid #ccc;
         }
+        .form_task{
+            display: none;
+        }
 
         .update_task, .form_task {
         max-width: 400px; /* Largeur maximale du formulaire */
