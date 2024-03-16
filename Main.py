@@ -26,7 +26,9 @@ def close_connection(exception):
 
 def get_login(usn, pwd):
     cur = get_db().cursor()
-    cur.execute(f"SELECT id, username, password FROM users WHERE username LIKE ? AND password LIKE ?", (usn, pwd))
+    cur.execute(
+        f"SELECT users.id, users.username, users.password FROM users WHERE users.active = True AND users.username LIKE ? AND users.password LIKE ?",
+        (usn, pwd))
     user = cur.fetchone()
     if user:
         return user
@@ -45,22 +47,35 @@ def get_all_tasks():
 
 def get_all_users():
     cur = get_db().cursor()
-    cur.execute("SELECT id,username FROM users where active = True")
+    cur.execute("SELECT users.id,users.username FROM users where users.active = True")
     res = cur.fetchall()
     return res
 
 
 def get_user_by_usn(usn):
     cur = get_db().cursor()
-    cur.execute("SELECT id,username FROM users where active = True and username=?", (usn,))
+    cur.execute("SELECT users.id,users.username FROM users where users.active = True and users.username=?", (usn,))
     res = cur.fetchone()
     return res
 
 
-def add_user(user, password):
+def get_user_by_id(user_id):
+    cur = get_db().cursor()
+    cur.execute("SELECT users.id,users.username FROM users where users.active = True and users.id=?", (user_id,))
+    res = cur.fetchone()
+    return res
+
+
+def add_user(username, password):
     cur = get_db().cursor()
     cur.execute("INSERT INTO users (username, password) VALUES (?,?)",
-                (user, password))
+                (username, password))
+    get_db().commit()
+
+
+def deactivate_user(user_id):
+    cur = get_db().cursor()
+    cur.execute("UPDATE users SET active = 0 WHERE id = ?", (user_id,))
     get_db().commit()
 
 
@@ -68,7 +83,7 @@ def get_tasks_by_user(user_id):
     cur = get_db().cursor()
     cur.execute(
         "SELECT tasks.id, tasks.title, tasks.content, users.username, tasks.date_task ,tasks.created FROM tasks INNER "
-        "JOIN users ON tasks.created_by = users.id WHERE created_by = ?",
+        "JOIN users ON tasks.created_by = users.id WHERE tasks.created_by = ?",
         (user_id,))
     res = cur.fetchall()
     return res
@@ -113,14 +128,12 @@ def login():
     :return: la page de login
     """
     if request.method == 'POST':
-        print("Méthode POST login")
         username = request.form['username']
         password = request.form['password']
         user = get_login(username, password)
         if user:
             session['user_id'] = user['id']
             session['username'] = user['username']
-            print(session['user_id'], session['username'])
             return redirect(url_for("index"))
         else:
             error_message = "Nom d'utilisateur ou mot de passe incorrect."
@@ -159,6 +172,18 @@ def logout():
     :return: la page de connexion
     """
     session.clear()
+    return redirect(url_for("login"))
+
+
+@app.route('/profil/<int:user_id>', methods=['GET'])
+def profile(user_id):
+    user = get_user_by_id(user_id)
+    return render_template('profil.html', user=user)
+
+
+@app.route('/deleteuser/<int:user_id>', methods=['POST'])
+def delete_user(user_id):
+    deactivate_user(user_id)
     return redirect(url_for("login"))
 
 

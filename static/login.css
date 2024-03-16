@@ -16,6 +16,8 @@
         h2 {
             text-align: center;
         }
+
+
         input[type="text"], input[type="password"], input[type="submit"] {
             width: 100%;
             padding: 10px;
@@ -36,3 +38,15 @@
             color: red;
             font-size: 14px;
         }
+
+
+        .delete  {
+    background-color: #dc3545 !important; /* Couleur de fond */
+    color: #fff !important;; /* Couleur du texte */
+
+}
+
+.delete:hover {
+    background-color: #c82333 !important; /* Couleur de fond au survol */
+}
+
