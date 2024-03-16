@@ -24,12 +24,21 @@ def close_connection(exception):
         db.close()
 
 
-def get_login(usn, pwd):
+def get_connectDB(sql_query, param=None):
     cur = get_db().cursor()
-    cur.execute(
-        f"SELECT users.id, users.username, users.password FROM users WHERE users.active = True AND users.username LIKE ? AND users.password LIKE ?",
-        (usn, pwd))
-    user = cur.fetchone()
+    if param is not None:
+        cur.execute(sql_query, param)
+    else:
+        cur.execute(sql_query)
+    return cur
+
+
+# Le password n'est pas hashé
+def get_login(usn, pwd):
+    sql_query = ("SELECT users.id, users.username, users.password FROM users WHERE users.active = True AND "
+                 "users.username LIKE ? AND users.password LIKE ?")
+    params = (usn, pwd)
+    user = get_connectDB(sql_query, params).fetchone()
     if user:
         return user
     else:
@@ -37,86 +46,83 @@ def get_login(usn, pwd):
 
 
 def get_all_tasks():
-    cur = get_db().cursor()
-    cur.execute(
-        "SELECT tasks.id, tasks.title, tasks.content, users.username, tasks.date_task ,tasks.created FROM tasks INNER "
-        "JOIN users ON tasks.created_by = users.id")
+    sql_query = ("SELECT tasks.id, tasks.title, tasks.content, users.username, tasks.date_task ,tasks.created FROM "
+                 "tasks INNER JOIN users ON tasks.created_by = users.id")
+    cur = get_connectDB(sql_query)
     res = cur.fetchall()
     return res
 
 
 def get_all_users():
-    cur = get_db().cursor()
-    cur.execute("SELECT users.id,users.username FROM users where users.active = True")
-    res = cur.fetchall()
+    sql_query = "SELECT users.id,users.username FROM users where users.active = True"
+    res = get_connectDB(sql_query).fetchall()
     return res
 
 
 def get_user_by_usn(usn):
-    cur = get_db().cursor()
-    cur.execute("SELECT users.id,users.username FROM users where users.active = True and users.username=?", (usn,))
-    res = cur.fetchone()
+    sql_query = "SELECT users.id,users.username FROM users where users.active = True and users.username=?"
+    params = (usn,)
+    res = get_connectDB(sql_query, params).fetchone()
     return res
 
 
 def get_user_by_id(user_id):
-    cur = get_db().cursor()
-    cur.execute("SELECT users.id,users.username FROM users where users.active = True and users.id=?", (user_id,))
-    res = cur.fetchone()
+    sql_query = "SELECT users.id,users.username FROM users where users.active = True and users.id=?"
+    params = (user_id,)
+    res = get_connectDB(sql_query, params).fetchone()
     return res
 
 
 def add_user(username, password):
-    cur = get_db().cursor()
-    cur.execute("INSERT INTO users (username, password) VALUES (?,?)",
-                (username, password))
+    sql_query = "INSERT INTO users (username, password) VALUES (?,?)"
+    params = (username, password)
+    get_connectDB(sql_query, params)
     get_db().commit()
 
 
+# Que faire des tâches associés aux users desactivés ?
 def deactivate_user(user_id):
-    cur = get_db().cursor()
-    cur.execute("UPDATE users SET active = 0 WHERE id = ?", (user_id,))
+    sql_query = "UPDATE users SET active = 0 WHERE id = ?"
+    params = (user_id,)
+    get_connectDB(sql_query, params)
     get_db().commit()
 
 
 def get_tasks_by_user(user_id):
-    cur = get_db().cursor()
-    cur.execute(
-        "SELECT tasks.id, tasks.title, tasks.content, users.username, tasks.date_task ,tasks.created FROM tasks INNER "
-        "JOIN users ON tasks.created_by = users.id WHERE tasks.created_by = ?",
-        (user_id,))
-    res = cur.fetchall()
+    sql_query = ("SELECT tasks.id, tasks.title, tasks.content, users.username, tasks.date_task ,tasks.created FROM "
+                 "tasks INNER JOIN users ON tasks.created_by = users.id WHERE tasks.created_by = ?")
+    params = (user_id,)
+    res = get_connectDB(sql_query, params).fetchall()
     return res
 
 
 def get_task_by_id(task_id):
-    cur = get_db().cursor()
-    cur.execute(
+    sql_query = (
         "SELECT tasks.id, tasks.title, tasks.content, users.username, tasks.date_task ,tasks.created FROM tasks INNER "
-        "JOIN users ON tasks.created_by = users.id WHERE tasks.id = ?",
-        (task_id,))
-    res = cur.fetchone()
+        "JOIN users ON tasks.created_by = users.id WHERE tasks.id = ?")
+    params = (task_id,)
+    res = get_connectDB(sql_query, params).fetchone()
     return res
 
 
 def add_task(title, content, date_task, created_by):
-    cur = get_db().cursor()
-    cur.execute("INSERT INTO tasks (title, content, date_task, created_by) VALUES (?,?,?, ?)",
-                (title, content, date_task, created_by))
+    sql_query = "INSERT INTO tasks (title, content, date_task, created_by) VALUES (?,?,?, ?)"
+    params = (title, content, date_task, created_by)
+    get_connectDB(sql_query, params)
     get_db().commit()
 
 
 def update_task(title, content, date_task, created_by, id_task):
-    cur = get_db().cursor()
-    cur.execute("UPDATE tasks SET title=?, content=?, date_task=?, created_by=? WHERE id=?",
-                (title, content, date_task, created_by, id_task))
+    sql_query = "UPDATE tasks SET title=?, content=?, date_task=?, created_by=? WHERE id=?"
+    params = (title, content, date_task, created_by, id_task)
+    get_connectDB(sql_query, params)
     get_db().commit()
 
 
 def delete_task(task_id):
-    cur = get_db().cursor()
-    cur.execute("DELETE FROM tasks WHERE tasks.id=?",
-                (task_id,))
+    sql_query = "DELETE FROM tasks WHERE tasks.id=?"
+    params = (task_id,)
+    get_connectDB(sql_query, params)
     get_db().commit()
 
 
@@ -159,8 +165,6 @@ def register():
         else:
             error_message = "Veuiller confirmer votre mot de passe"
             return render_template('register.html', error_message=error_message)
-
-
     else:
         return render_template('register.html')
 
@@ -216,7 +220,7 @@ def index():
 @app.route('/update/<int:task_id>', methods=['GET', 'POST'])
 def update(task_id):
     """
-
+    Modifie les données d'une tâche
     :param task_id: identifiant entier unique d'une tâche
     :return: La page de modifcation ou La page d'accueil après modification
     """
@@ -235,7 +239,7 @@ def update(task_id):
 @app.route('/delete/<int:task_id>')
 def delete(task_id):
     """
-
+    Passe le champ activate à False
     :param task_id: identifiant entier unique d'une tâche
     :return: la page d'accueil après la supression de tâche
     """

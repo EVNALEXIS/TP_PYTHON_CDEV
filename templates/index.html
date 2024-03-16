@@ -21,7 +21,6 @@
     </form>
 </div>
 </div>
-
      <main>
          <div id="users" >
             <div class="user"><a href="{{ url_for('index') }}">all</a></div>
@@ -33,12 +32,12 @@
                 {% endfor %}
              {% endif %}
          </div>
-
         <div id="tasks">
 
             <button id="show_form" type="button"><i class="fas fa-plus"></i> Ajouter une tâche</button>
 
-            <form class="form_task" id="form_task"action="{{ url_for('index') }}", method="POST">
+            <form class="form_task" id="form_task" action="{{ url_for('index') }}", method="POST">
+
                 <label for="tasktitle">Titre :</label>
                 <input type="text" name="title" id="tasktitle" placeholder="Titre de ma tâche" required>
 
@@ -48,7 +47,6 @@
                 <label for="taskdate">Date :</label>
                 <input type="date" name="date" id="taskdate" required>
                 <input type="submit" value="Ajouter">
-
             </form>
             {% if all_tasks %}
                 {% for task in all_tasks %}
@@ -59,7 +57,9 @@
 </a></div>
                 {% endfor %}
             {% else %}
-                <p style="font-size: 16px; text-align: center;">Vide</p>
+                <p style="font-size: 16px; text-align: center;">Plus rien à faire</p>
+                <div class="tenor-gif-embed" data-postid="17005878" data-share-method="host" data-aspect-ratio="1.73913" data-width="100%"><a href="https://tenor.com/view/cristiano-sayajin-saiyan-power-cristiano-ronaldo-soccer-player-gif-17005878">Cristiano Sayajin Saiyan GIF</a>from <a href="https://tenor.com/search/cristiano+sayajin-gifs">Cristiano Sayajin GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+
             {% endif %}
         </div>
         <div id="task-content" class="task-content" ></div>

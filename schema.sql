@@ -23,6 +23,6 @@ CREATE TABLE tasks (
 INSERT INTO users(username, password) VALUES ('admin', 'admin');
 INSERT INTO users(username, password) VALUES ('root', 'root');
 INSERT INTO tasks (title, content, date_task, created_by) VALUES
-    ('Faire les courses', 'Acheter du lait, du pain et des œufs', '2024-03-15', 1),
-    ('Préparer le rapport', 'Rédiger le rapport pour la réunion', '2024-03-16', 2),
-    ('Nettoyer la maison', 'Passer l''aspirateur et faire la poussière', '2024-03-17', 1);
+    ('Faire les courses', 'Acheter du lait, du pain et des oeufs', '2024-03-15', 1),
+    ('Préparer le rapport', 'Rediger le rapport pour la réunion', '2024-03-16', 2),
+    ('Nettoyer la maison', 'Passer l''aspirateur et faire la poussiere', '2024-03-17', 1);
