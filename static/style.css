@@ -1,0 +1,136 @@
+
+        /* Votre CSS ici */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .navbar {
+            background-color: #f4f4f4;
+            padding: 10px 20px;
+        }
+
+        .navbar-right {
+            float: right;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-right a {
+            margin-left: 10px;
+            color: #333;
+            text-decoration: none;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        main {
+            margin: 20px auto; /* Centrer la section principale */
+            width: 80%; /* Largeur de la section principale */
+        }
+
+        /* Styles pour les utilisateurs */
+        #users {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        .user {
+            margin-bottom: 10px;
+            margin-right: 10px;
+        }
+
+        /* Styles pour les tâches */
+        #tasks {
+            flex-wrap: wrap;
+        }
+
+        .task {
+            border: 1px solid #ccc; /* Bordure des tâches */
+            margin: 10px;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .task:hover {
+            background-color: #f9f9f9; /* Couleur de fond des tâches au survol */
+        }
+
+        /* Styles pour le contenu de la tâche */
+        #task-content {
+            display: none; /* Masquer le contenu de la tâche par défaut */
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+
+        .update_task, .form_task {
+        max-width: 400px; /* Largeur maximale du formulaire */
+        margin: 0 auto; /* Centrer le formulaire horizontalement */
+        padding: 20px; /* Ajouter un espace intérieur autour du formulaire */
+        background-color: #f9f9f9; /* Couleur de fond */
+        border: 1px solid #ccc; /* Bordure */
+        border-radius: 5px; /* Coins arrondis */
+    }
+
+    .update_task label, .form_task label {
+        display: block; /* Afficher les étiquettes sur une nouvelle ligne */
+        margin-bottom: 5px; /* Ajouter un espace en bas de chaque étiquette */
+    }
+
+    .update_task input[type="text"],
+    .update_task input[type="date"],
+    .update_task textarea,
+    .form_task input[type="text"],
+    .form_task input[type="date"],
+    .form_task textarea{
+        width: 100%; /* Largeur de 100% pour remplir le conteneur */
+        padding: 8px; /* Ajouter un espace intérieur */
+        margin-bottom: 10px; /* Ajouter un espace en bas de chaque champ */
+        border: 1px solid #ccc; /* Bordure */
+        border-radius: 4px; /* Coins arrondis */
+        box-sizing: border-box; /* Garder la largeur fixe incluant la bordure et le remplissage */
+    }
+
+    .form_task input[type="submit"],.update_task input[type="submit"] {
+    background-color: #007bff; /* Couleur de fond du bouton */
+    color: #fff; /* Couleur du texte */
+    border: none; /* Supprimer la bordure */
+    padding: 10px 20px; /* Ajouter un espace intérieur */
+    cursor: pointer; /* Curseur de souris */
+    border-radius: 4px; /* Coins arrondis */
+    display: block; /* Afficher le bouton sur une nouvelle ligne */
+    width: 100%; /* Largeur de 100% pour remplir le conteneur */
+}
+
+.form_task input[type="submit"]:hover,.update_task input[type="submit"]:hover {
+    background-color: #0056b3; /* Couleur de fond au survol */
+}
+.update_task input[readonly],
+.update_task textarea[readonly],
+.form_task input[readonly],
+.form_task textarea[readonly]{
+    color: #666; /* Couleur de texte grisé */
+    background-color: #f5f5f5; /* Couleur de fond grisé */
+}
+
+

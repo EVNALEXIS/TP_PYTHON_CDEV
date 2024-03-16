@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier une tâche</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Modifier une tâche</h1>
+    <form action="{{ url_for('update', task_id=task.id) }}" method="POST" class="update_task">
+        <label for="tasktitle">Titre :</label>
+        <input type="text" name="title" id="tasktitle" value="{{ task.title }}" required>
+
+        <label for="taskcontent">Contenu :</label>
+        <textarea name="content" id="taskcontent" required>{{ task.content }}</textarea>
+
+        <label for="taskdate">Date :</label>
+        <input type="date" name="date" id="taskdate" value="{{ task.date_task }}" required>
+
+        <label for="taskcreated">Date de création:</label>
+        <input type="text" name="datecreate" id="taskcreated" value="{{ task.created }}" readonly >
+        <label for="taskusername">Crée par:</label>
+        <input type="text" name="username" id="taskusername" value="{{ task.username }}" readonly >
+
+        <input type="submit" value="Modifier" >
+    </form>
+
+</body>
+
+</html>

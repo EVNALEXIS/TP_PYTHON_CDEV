@@ -5,131 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ma liste de tâche</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <!-- Autres balises dans le head -->
-    <style>
-        /* Votre CSS ici */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-        }
-
-        header {
-            background-color: #333;
-            color: #fff;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .navbar {
-            background-color: #f4f4f4;
-            padding: 10px 20px;
-        }
-
-        .navbar-right {
-            float: right;
-            display: flex;
-            align-items: center;
-        }
-
-        .navbar-right a {
-            margin-left: 10px;
-            color: #333;
-            text-decoration: none;
-        }
-
-        button {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        main {
-            margin: 20px auto; /* Centrer la section principale */
-            width: 80%; /* Largeur de la section principale */
-        }
-
-        /* Styles pour les utilisateurs */
-        #users {
-            margin-bottom: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: flex-start;
-        }
-
-        .user {
-            margin-bottom: 10px;
-            margin-right: 10px;
-        }
-
-        /* Styles pour les tâches */
-        #tasks {
-            flex-wrap: wrap;
-        }
-
-        .task {
-            border: 1px solid #ccc; /* Bordure des tâches */
-            margin: 10px;
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        .task:hover {
-            background-color: #f9f9f9; /* Couleur de fond des tâches au survol */
-        }
-
-        /* Styles pour le contenu de la tâche */
-        #task-content {
-            display: none; /* Masquer le contenu de la tâche par défaut */
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
-        }
-        /* Style général pour le formulaire */
-        .form_task {
-            width: 300px; /* Largeur du formulaire */
-            margin: 0 auto; /* Centrer le formulaire horizontalement */
-            display: none;
-        }
-
-        /* Style pour les étiquettes des champs */
-        label {
-            display: block; /* Afficher les étiquettes sur une ligne séparée */
-            margin-bottom: 10px; /* Espacement entre les étiquettes */
-        }
-
-        /* Style pour les champs de saisie */
-        input[type="text"],
-        input[type="date"] {
-            width: 100%; /* Remplir toute la largeur du formulaire */
-            padding: 8px; /* Espace interne */
-            margin-bottom: 15px; /* Espacement entre les champs */
-            border: 1px solid #ccc; /* Bordure autour des champs */
-            border-radius: 4px; /* Coins arrondis */
-        }
-
-        /* Style pour le bouton de soumission */
-        input[type="submit"] {
-            background-color: #007bff; /* Couleur de fond du bouton */
-            color: #fff; /* Couleur du texte */
-            border: none; /* Pas de bordure */
-            padding: 10px 20px; /* Espace interne */
-            border-radius: 4px; /* Coins arrondis */
-            cursor: pointer; /* Curseur au survol */
-        }
-
-        /* Style pour le bouton de soumission au survol */
-        input[type="submit"]:hover {
-            background-color: #0056b3; /* Couleur de fond au survol */
-        }
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
 
-    </style>
 </head>
 <body>
     <header>
@@ -161,15 +39,20 @@
             <button id="show_form" type="button"><i class="fas fa-plus"></i> Ajouter une tâche</button>
 
             <form class="form_task" id="form_task"action="{{ url_for('index') }}", method="POST">
-                <input type="text" name="title" id="tasktitle" placeholder="Titre de ma tâche">
-                <input type="text" name="content" id="taskcontent" placeholder="Contenu de la tâche">
-                <input type="date" name="date" id="taskdate" >
+                <label for="tasktitle">Titre :</label>
+                <input type="text" name="title" id="tasktitle" placeholder="Titre de ma tâche" required>
+
+                <label for="taskcontent">Contenu :</label>
+                <textarea name="content" id="taskcontent" placeholder="Contenu" required></textarea>
+
+                <label for="taskdate">Date :</label>
+                <input type="date" name="date" id="taskdate" required>
                 <input type="submit" value="Ajouter">
 
             </form>
             {% if all_tasks %}
                 {% for task in all_tasks %}
-                    <div class="task" data-content="{{ task.content }}, créée le {{ task.date_task }} par {{ task.username }}">{{ task.title }} <a href="#"><i class="fas fa-pen"></i></a> <a href="#"><i class="fas fa-trash"></i></a></div>
+                    <div class="task" data-content="{{ task.content }}, a réalisé le {{ task.date_task }} par {{ task.username }}">{{ task.title }} <a href="{{ url_for('update', task_id=task.id) }}" class="btn_update_task"><i class="fas fa-pen"></i></a> <a href="#"><i class="fas fa-trash"></i></a></div>
                 {% endfor %}
             {% else %}
                 <p style="font-size: 16px; text-align: center;">Vide</p>
@@ -213,6 +96,25 @@
                 taskContentDiv.style.display = 'block'
             });
         });
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+        const updateTaskLinks = document.querySelectorAll('.btn_update_task');
+
+        updateTaskLinks.forEach(link => {
+            link.addEventListener('click', function(event) {
+             event.preventDefault(); // Empêcher le comportement par défaut du lien
+
+            // Récupérer l'URL du lien
+            const url = this.getAttribute('href');
+
+            // Ouvrir une fenêtre contextuelle avec l'URL spécifiée
+            window.open(url, '_blank', 'toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=600,height=400');
+
+        });
+    });
+});
+
     </script>
 
     <footer>

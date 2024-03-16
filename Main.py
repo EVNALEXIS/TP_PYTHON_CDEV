@@ -49,6 +49,13 @@ def get_all_users():
     return res
 
 
+def get_user_by_usn(usn):
+    cur = get_db().cursor()
+    cur.execute("SELECT id,username FROM users where active = True and username=?", (usn,))
+    res = cur.fetchone()
+    return res
+
+
 def add_user():
     return True
 
@@ -62,6 +69,15 @@ def get_tasks_by_user(user_id):
     return res
 
 
+def get_task_by_id(task_id):
+    cur = get_db().cursor()
+    cur.execute(
+        "SELECT tasks.id, tasks.title, tasks.content, users.username, tasks.date_task ,tasks.created FROM tasks INNER JOIN users ON tasks.created_by = users.id WHERE tasks.id = ?",
+        (task_id,))
+    res = cur.fetchone()
+    return res
+
+
 def add_task(title, content, date_task, created_by):
     cur = get_db().cursor()
     cur.execute("INSERT INTO tasks (title, content, date_task, created_by) VALUES (?,?,?, ?)",
@@ -69,11 +85,14 @@ def add_task(title, content, date_task, created_by):
     get_db().commit()
 
 
+def update_task(title, content, date_task, created_by, id_task):
+    cur = get_db().cursor()
+    cur.execute("UPDATE tasks SET title=?, content=?, date_task=?, created_by=? WHERE id=?",
+                (title, content, date_task, created_by, id_task))
+    get_db().commit()
+
+
 def delete_task():
-    return True
-
-
-def update_task(name):
     return True
 
 
@@ -123,13 +142,22 @@ def index():
             return render_template('index.html', all_tasks=all_tasks, all_users=all_users)
 
 
-@app.route('/update/', methods=['GET', 'POST'])
-def update(id):
+@app.route('/update/<int:task_id>', methods=['GET', 'POST'])
+def update(task_id):
     if request.method == 'POST':
-
+        title = request.form.get('title')
+        content = request.form.get('content')
+        date = request.form.get('date')
+        created_by = get_user_by_usn(request.form.get('username'))['id']
+        update_task(title=title, content=content, date_task=date, created_by=created_by, id_task=task_id)
         return redirect(url_for('index'))
     else:
-        return render_template('update.html')
+        task = get_task_by_id(task_id)
+        return render_template('update.html', task=task)
+
+
+def delete(task_id):
+    return True;
 
 
 @app.route('/logout', methods=['POST'])
